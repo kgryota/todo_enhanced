@@ -52,9 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <label for="password">パスワード：</label>
         <input type="password" id="password" name="password" required><br><br>
-        <button type="submit">登録</button>
+        <button type="submit">登録</button><br><br>
+    
 
-        <a href="login.php">新規登録</a>
+        <a href="login.php">ログインはこちら</a>
 
         
 </body>
