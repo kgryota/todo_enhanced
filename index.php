@@ -129,6 +129,13 @@ header{
     margin: 20px;
 }
 
+.task_list h1{
+    font-size: 20px;
+    font-weight: bold;
+    padding-bottom: 20px;
+    
+}
+
 td{
     width: 20%;
     text-align: center;
@@ -160,7 +167,7 @@ td{
     </div>
     <div class="search_task">
         <h1>フィルター/検索</h1>
-        <form action="index.php" method="post">
+        <form action="index.php" method="get">
             <input type="text" name="search_keyword" placeholder="キーワード">
             <input type="date" name="task_date">
             <select name="task_priority">
@@ -191,10 +198,39 @@ td{
                 // DSN（接続文字列）
                 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
 
-                if(isset($_POST['search_keyword'])){
+                if(isset($_GET['search_keyword'])){
                     #検索処理
                     echo "<h1>検索結果<h1>";
-                    
+                    // 任意の検索条件（例：フォームからのPOST値など）
+                    $user_id = 1; // 任意のユーザーID
+                    $search = 'git'; // 検索ワード
+
+                    try {
+                        $pdo = new PDO($dsn, $user, $pass);
+                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                        // プリペアドステートメントで安全に変数を使う
+                        $sql = "SELECT * FROM `todos` WHERE `user_id` = :user_id AND `task` LIKE :task";
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->execute([
+                            ':user_id' => $user_id,
+                            ':task' => "%$search%" // ワイルドカードを含めてバインド
+                        ]);
+
+                        // 表示処理
+                        foreach ($stmt as $row) {
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($row['status']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['task']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['due_date']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['priority']) . "</td>";
+                            echo "<td>aaa</td>";
+                            echo "</tr>";
+                        }
+
+                    } catch (PDOException $e) {
+                        echo "DBエラー: " . htmlspecialchars($e->getMessage());
+                    }
                 }
 
                 // 接続とクエリ実行
