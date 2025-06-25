@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if (isset($_SESSION['id'])) {
+    $id = $_SESSION['id'];
+} else {
+    header("Location:./login.php");
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $host = 'mysql321.phy.lolipop.lan';
     $dbname = 'LAA1554899-todoapp';  // 表示と同じデータベース名に統一
@@ -201,8 +208,8 @@ th {
     <header>
         <h1>ToDo リスト</h1>
         <div class="user_menu">
-            <p>○○さん</p>
-            <a href="#">ログアウト</a>
+            <p><?php echo $id. 'さん'; ?>　</p>
+            <a href="">ログアウト</a>
         </div>
     </header>
     <div class="progress_bar">

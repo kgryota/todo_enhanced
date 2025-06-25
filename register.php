@@ -1,4 +1,5 @@
 <?php
+session_start();
 // フォーム送信処理
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';

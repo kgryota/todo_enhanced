@@ -23,8 +23,7 @@ session_start();
         if ($stmt->rowCount()>0) {
             //ログイン許可
             //ユーザーネームを取得
-            $_SESSION['id']=$_POST['username'];
-            $_SESSION['admin_login'] = true;
+            $_SESSION['user_name']=$_POST['username'];
             header("Location:./index.php");
         } else {
             //間違っているのでログイン不可
