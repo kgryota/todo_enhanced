@@ -29,15 +29,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 簡単なバリデーション
         if ($content && $date && $priority) {
             // todosテーブルの構造に合わせて修正
-            $sql = "INSERT INTO todos (user_id, task, due_date, priority, status) VALUES (:user_id, :task, :due_date, :priority, :status)";
+            $sql = "INSERT INTO todos (id, task, due_date, priority, status) VALUES (:id, :task, :due_date, :priority, :status)";
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':user_id', $user_id);
+            $stmt->bindParam(':id', $id);
             $stmt->bindParam(':task', $content);
             $stmt->bindParam(':due_date', $date);
             $stmt->bindParam(':priority', $priority);
             $stmt->bindParam(':status', $status);
             
-            $user_id = 1;  // 固定のユーザーID
+            $user_id = $_SESSION['id'];  
             $status = 'todo';  // デフォルトステータス
             
             $stmt->execute();
