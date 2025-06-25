@@ -6,6 +6,11 @@
 </head>
 <body>
     <h1>ログイン</h1>
+
+    <?php if (isset($_GET['error'])): ?>
+        <p style="color: red;">ユーザー名またはパスワードが正しくありません。</p>
+    <?php endif; ?>
+
     <form class="login-form" action="check.php" method="POST">
         <label for="username">ユーザー名：</label>
         <input type="text" id="username" name="username" required><br><br>
