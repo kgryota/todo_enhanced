@@ -1,40 +1,42 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $host = 'mysql321.phy.lolipop.lan';
-    $dbname = 'LAA1554899-shortbbs';
-    $user = 'LAA1554899';
-    $pass = 'teamproject';
-    $charset = 'utf8mb4';
+  
+$host = 'mysql321.phy.lolipop.lan';
+$dbname = 'LAA1554899-todoapp';  
+$user = 'LAA1554899';
+$pass = 'teamproject';
+$charset = 'utf8mb4';
 
-    $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
+$dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
 
-    try {
-        $pdo = new PDO($dsn, $user, $pass, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-        ]);
+try {
+    $pdo = new PDO($dsn, $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]);
 
-        // POSTデータを受け取る（フォームのname属性に合わせて修正）
-        $content = $_POST['task_content'] ?? '';
-        $date = $_POST['task_date'] ?? '';
-        $priority = $_POST['task_priority'] ?? '';
+    $content = $_POST['task_content'] ?? '';
+    $date = $_POST['task_date'] ?? '';
+    $priority = $_POST['task_priority'] ?? '';
 
-        // 簡単なバリデーション
-        if ($content && $date && $priority) {
-            $sql = "INSERT INTO tasks (content, date, priority) VALUES (:content, :date, :priority)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':content', $content);
-            $stmt->bindParam(':date', $date);
-            $stmt->bindParam(':priority', $priority);
-            $stmt->execute();
+    if ($content && $date && $priority) {
+        $user_id = 1;  
+        $sql = "INSERT INTO todos (user_id, task, due_date, priority) VALUES (:user_id, :task, :due_date, :priority)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':task', $content);
+        $stmt->bindParam(':due_date', $date);
+        $stmt->bindParam(':priority', $priority);
+        $stmt->execute();
 
-            $message = "タスクを追加しました。";
-        } else {
-            $message = "全ての項目を入力してください。";
-        }
-
-    } catch (PDOException $e) {
-        $message = "データベース接続エラー: " . htmlspecialchars($e->getMessage());
+        $message = "タスクを追加しました。";
+    } else {
+        $message = "全ての項目を入力してください。";
     }
+
+} catch (PDOException $e) {
+    $message = "データベース接続エラー: " . htmlspecialchars($e->getMessage());
+}
+
 }
 ?>
 <!DOCTYPE html>
