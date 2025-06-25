@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+// ここを追加！
+$username = $_POST['username'] ?? '';
+$password = $_POST['password'] ?? '';
+
 if ($username === '' || $password === '') {
     $error = 'ユーザー名とパスワードは必須です。';
 } else {
@@ -21,10 +25,7 @@ if ($username === '' || $password === '') {
         $stmt->bindParam(':password', $hashedPassword);
         $stmt->execute();
 
-        // 登録されたユーザーIDを取得（オートインクリメントされたID）
         $userId = $pdo->lastInsertId();
-
-        // セッションに保存
         $_SESSION['id'] = $userId;
         $_SESSION['username'] = $username;
 
@@ -36,6 +37,7 @@ if ($username === '' || $password === '') {
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -57,7 +59,7 @@ if ($username === '' || $password === '') {
     
 
         <a href="login.php">ログインはこちら</a>
-
+    </form>
         
 </body>
 </html>
