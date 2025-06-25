@@ -193,7 +193,7 @@ td{
     </div>
     <div class="add_task">
         <h1>タスクの追加</h1>
-        <form action="#" method="post">
+        <form action="index.php" method="post">
             <input type="text" name="task_content" placeholder="タスクの内容">
             <input type="date" name="task_date">
             <select name="task_priority">
@@ -270,19 +270,21 @@ td{
                     } catch (PDOException $e) {
                         echo "DBエラー: " . htmlspecialchars($e->getMessage());
                     }
+                }else{
+                    // 接続とクエリ実行
+                    $pdo = new PDO($dsn, $user, $pass);
+                    foreach ($pdo->query('SELECT * FROM `todos` WHERE `user_id` = 1') as $row) {
+                        echo "<tr>";
+                        echo "<td>". $row['status'] . "</td>";
+                        echo "<td>". $row['task'] . "</td>";
+                        echo "<td>". $row['due_date'] . "</td>";
+                        echo "<td>". $row['priority'] . "</td>";
+                        echo "<td>aaa</td>";
+                        echo "</tr>";
+                    }
                 }
 
-                // 接続とクエリ実行
-                $pdo = new PDO($dsn, $user, $pass);
-                foreach ($pdo->query('SELECT * FROM `todos` WHERE `user_id` = 1') as $row) {
-                    echo "<tr>";
-                    echo "<td>". $row['status'] . "</td>";
-                    echo "<td>". $row['task'] . "</td>";
-                    echo "<td>". $row['due_date'] . "</td>";
-                    echo "<td>". $row['priority'] . "</td>";
-                    echo "<td>aaa</td>";
-                    echo "</tr>";
-                }
+
             ?>
 
         </table>
