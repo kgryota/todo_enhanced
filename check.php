@@ -1,24 +1,11 @@
 <?php
 session_start();
-    $pdo = new PDO(
-        'mysql:host=mysql321.phy.lolipop.lan;
-        dbname=LAA1554899-todoapp;charset=utf8',
-        'LAA1554899',
-        'teamproject'
-    );
-        $username = isset($_POST['username'])? htmlspecialchars($_POST['username'], ENT_QUOTES, 'utf-8') : '';
-        $password = isset($_POST['password'])? htmlspecialchars($_POST['password'], ENT_QUOTES, 'utf-8'): '';
-        $stmt = $pdo->prepare("SELECT * FROM maneger WHERE maneger_id = ? and maneger_pass= ?");
-        $stmt->execute([$sid, $password]);
 
-        if ($username == '') {
-            header("Location:./login.php");
-            exit;
-        }
-        if ($password == '') {
-            header("Location:./login.php");
-            exit;
-        }
+$pdo = new PDO(
+    'mysql:host=mysql321.phy.lolipop.lan;dbname=LAA1554899-todoapp;charset=utf8',
+    'LAA1554899',
+    'teamproject'
+);
 
         if ($stmt->rowCount()>0) {
             //ログイン許可
@@ -31,3 +18,26 @@ session_start();
             exit;
         }
 ?>
+$username = $_POST['username'] ?? '';
+$password = $_POST['password'] ?? '';
+
+if ($username === '' || $password === '') {
+    header("Location: login.php?error=empty");
+    exit;
+}
+
+// DBから該当ユーザーを取得
+$stmt = $pdo->prepare("SELECT * FROM user WHERE id = ?");
+$stmt->execute([$username]);
+$user = $stmt->fetch();
+
+// パスワードの照合（ハッシュ化前提）
+if ($user && password_verify($password, $user['password'])) {
+    $_SESSION['id'] = $username;
+    $_SESSION['admin_login'] = true;
+    header("Location: index.php");
+    exit;
+} else {
+    header("Location: login.php?error=invalid");
+    exit;
+}
