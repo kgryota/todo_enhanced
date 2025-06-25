@@ -1,43 +1,42 @@
 <?php
 session_start();
-// フォーム送信処理
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
 
-    if ($username === '' || $password === '') {
-        $error = 'ユーザー名とパスワードは必須です。';
-    } else {
-        // パスワードをハッシュ化
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+if ($username === '' || $password === '') {
+    $error = 'ユーザー名とパスワードは必須です。';
+} else {
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // データベース接続情報
-        $host = 'mysql321.phy.lolipop.lan';
-        $dbname = 'LAA1554899-todoapp';
-        $dbuser = 'LAA1554899';
-        $dbpass = 'teamproject';
+    $host = 'mysql321.phy.lolipop.lan';
+    $dbname = 'LAA1554899-todoapp';
+    $dbuser = 'LAA1554899';
+    $dbpass = 'teamproject';
 
-        try {
-            // データベースに接続（PDO）
-            $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8";
-            $pdo = new PDO($dsn, $dbuser, $dbpass);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    try {
+        $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8";
+        $pdo = new PDO($dsn, $dbuser, $dbpass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            // データ挿入（プリペアドステートメント）
-            $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (:username, :password)");
-            $stmt->bindParam(':username', $username);
-            $stmt->bindParam(':password', $hashedPassword);
-            $stmt->execute();
+        $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (:username, :password)");
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':password', $hashedPassword);
+        $stmt->execute();
 
-            $_SESSION['id']=$_POST['username']; 
-            header("Location:./index.php");
+        // 登録されたユーザーIDを取得（オートインクリメントされたID）
+        $userId = $pdo->lastInsertId();
 
-        } catch (PDOException $e) {
-            $error = 'データベースエラー：' . $e->getMessage();
-        }
+        // セッションに保存
+        $_SESSION['id'] = $userId;
+        $_SESSION['username'] = $username;
+
+        header("Location: ./index.php");
+        exit();
+
+    } catch (PDOException $e) {
+        $error = 'データベースエラー：' . $e->getMessage();
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="ja">
