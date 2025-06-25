@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':status', $status);
             
             $user_id = 1;  // 固定のユーザーID
-            $status = '未完了';  // デフォルトステータス
+            $status = 'todo';  // デフォルトステータス
             
             $stmt->execute();
 
