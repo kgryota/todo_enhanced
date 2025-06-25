@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':priority', $priority);
             $stmt->bindParam(':status', $status);
             
-            $user_id = 1;  // 固定のユーザーID
+            $user_id = $_SESSION['id'];  
             $status = 'todo';  // デフォルトステータス
             
             $stmt->execute();
