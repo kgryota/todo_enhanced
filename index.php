@@ -1,42 +1,47 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  
-$host = 'mysql321.phy.lolipop.lan';
-$dbname = 'LAA1554899-todoapp';  
-$user = 'LAA1554899';
-$pass = 'teamproject';
-$charset = 'utf8mb4';
+    $host = 'mysql321.phy.lolipop.lan';
+    $dbname = 'LAA1554899-todoapp';  // 表示と同じデータベース名に統一
+    $user = 'LAA1554899';
+    $pass = 'teamproject';
+    $charset = 'utf8mb4';
 
-$dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
+    $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
 
-try {
-    $pdo = new PDO($dsn, $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
+    try {
+        $pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
 
-    $content = $_POST['task_content'] ?? '';
-    $date = $_POST['task_date'] ?? '';
-    $priority = $_POST['task_priority'] ?? '';
+        // POSTデータを受け取る
+        $content = $_POST['task_content'] ?? '';
+        $date = $_POST['task_date'] ?? '';
+        $priority = $_POST['task_priority'] ?? '';
 
-    if ($content && $date && $priority) {
-        $user_id = 1;  
-        $sql = "INSERT INTO todos (user_id, task, due_date, priority) VALUES (:user_id, :task, :due_date, :priority)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':user_id', $user_id);
-        $stmt->bindParam(':task', $content);
-        $stmt->bindParam(':due_date', $date);
-        $stmt->bindParam(':priority', $priority);
-        $stmt->execute();
+        // 簡単なバリデーション
+        if ($content && $date && $priority) {
+            // todosテーブルの構造に合わせて修正
+            $sql = "INSERT INTO todos (user_id, task, due_date, priority, status) VALUES (:user_id, :task, :due_date, :priority, :status)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':user_id', $user_id);
+            $stmt->bindParam(':task', $content);
+            $stmt->bindParam(':due_date', $date);
+            $stmt->bindParam(':priority', $priority);
+            $stmt->bindParam(':status', $status);
+            
+            $user_id = 1;  // 固定のユーザーID
+            $status = '未完了';  // デフォルトステータス
+            
+            $stmt->execute();
 
-        $message = "タスクを追加しました。";
-    } else {
-        $message = "全ての項目を入力してください。";
+            $message = "タスクを追加しました。";
+        } else {
+            $message = "全ての項目を入力してください。";
+        }
+
+    } catch (PDOException $e) {
+        $message = "データベース接続エラー: " . htmlspecialchars($e->getMessage());
     }
-
-} catch (PDOException $e) {
-    $message = "データベース接続エラー: " . htmlspecialchars($e->getMessage());
-}
-
 }
 ?>
 <!DOCTYPE html>
@@ -49,9 +54,7 @@ try {
 
 <body>
 <style>
-
-
-    /* ---------------------------------
+/* ---------------------------------
    Reset CSS
    Author: Eric Meyer (modified)
 ---------------------------------- */
@@ -129,7 +132,6 @@ body{
     font-size: 20px;
     font-weight: bold;
     padding-bottom: 20px;
-    
 }
 
 .user_menu{
@@ -160,7 +162,6 @@ header{
     font-size: 20px;
     font-weight: bold;
     padding-bottom: 20px;
-    
 }
 
 .task_list{
@@ -174,7 +175,6 @@ header{
     font-size: 20px;
     font-weight: bold;
     padding-bottom: 20px;
-    
 }
 
 td{
@@ -182,6 +182,21 @@ td{
     text-align: center;
 }
 
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
 </style>
     <header>
         <h1>ToDo リスト</h1>
@@ -195,10 +210,14 @@ td{
     </div>
     <div class="add_task">
         <h1>タスクの追加</h1>
+        <?php if (isset($message)): ?>
+            <p style="color: green; margin-bottom: 10px;"><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
         <form action="index.php" method="post">
-            <input type="text" name="task_content" placeholder="タスクの内容">
-            <input type="date" name="task_date">
-            <select name="task_priority">
+            <input type="text" name="task_content" placeholder="タスクの内容" required>
+            <input type="date" name="task_date" required>
+            <select name="task_priority" required>
+                <option value="">優先度を選択</option>
                 <option value="1">優先度（低）</option>
                 <option value="2">中</option>
                 <option value="3">高</option>
@@ -209,17 +228,22 @@ td{
     <div class="search_task">
         <h1>フィルター/検索</h1>
         <form action="index.php" method="get">
-            <input type="text" name="search_keyword" placeholder="キーワード">
-            <input type="date" name="task_date">
-            <select name="task_priority">
-                <option value="1">優先度（低）</option>
-                <option value="2">中</option>
-                <option value="3">高</option>
+            <input type="text" name="search_keyword" placeholder="キーワード" value="<?php echo htmlspecialchars($_GET['search_keyword'] ?? ''); ?>">
+            <input type="date" name="search_date" value="<?php echo htmlspecialchars($_GET['search_date'] ?? ''); ?>">
+            <select name="search_priority">
+                <option value="">優先度を選択</option>
+                <option value="1" <?php echo (isset($_GET['search_priority']) && $_GET['search_priority'] == '1') ? 'selected' : ''; ?>>優先度（低）</option>
+                <option value="2" <?php echo (isset($_GET['search_priority']) && $_GET['search_priority'] == '2') ? 'selected' : ''; ?>>中</option>
+                <option value="3" <?php echo (isset($_GET['search_priority']) && $_GET['search_priority'] == '3') ? 'selected' : ''; ?>>高</option>
             </select>
             <button type="submit">適用</button>
+            <?php if (!empty($_GET['search_keyword']) || !empty($_GET['search_date']) || !empty($_GET['search_priority'])): ?>
+                <a href="index.php">クリア</a>
+            <?php endif; ?>
         </form>
     </div>
     <div class="task_list">
+        <h1><?php echo (!empty($_GET['search_keyword']) || !empty($_GET['search_date']) || !empty($_GET['search_priority'])) ? '検索結果' : 'タスク一覧'; ?></h1>
         <table>
             <tr>
                 <th>状態</th>
@@ -229,9 +253,9 @@ td{
                 <th>操作</th>
             </tr>
             <?php
-                // データベース接続情報
+                // データベース接続情報（統一）
                 $host = 'mysql321.phy.lolipop.lan';
-                $dbname = 'LAA1554899-todoapp';
+                $dbname = 'LAA1554899-todoapp';  // 正しいデータベース名
                 $user = 'LAA1554899';
                 $pass = 'teamproject';
                 $charset = 'utf8mb4';
@@ -239,57 +263,88 @@ td{
                 // DSN（接続文字列）
                 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
 
-                if(isset($_GET['search_keyword'])){
-                    #検索処理
-                    echo "<h1>検索結果<h1>";
-                    // 任意の検索条件（例：フォームからのPOST値など）
-                    $user_id = 1; // 任意のユーザーID
-                    $search = 'git'; // 検索ワード
+                try {
+                    $pdo = new PDO($dsn, $user, $pass, [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                    ]);
 
-                    try {
-                        $pdo = new PDO($dsn, $user, $pass);
-                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    // 検索条件を取得
+                    $search_keyword = $_GET['search_keyword'] ?? '';
+                    $search_date = $_GET['search_date'] ?? '';
+                    $search_priority = $_GET['search_priority'] ?? '';
 
-                        // プリペアドステートメントで安全に変数を使う
-                        $sql = "SELECT * FROM `todos` WHERE `user_id` = :user_id AND `task` LIKE :task";
-                        $stmt = $pdo->prepare($sql);
-                        $stmt->execute([
-                            ':user_id' => $user_id,
-                            ':task' => "%$search%" // ワイルドカードを含めてバインド
-                        ]);
+                    // SQL文の組み立て
+                    $sql = "SELECT * FROM `todos` WHERE `user_id` = :user_id";
+                    $params = [':user_id' => 1];
 
-                        // 表示処理
-                        foreach ($stmt as $row) {
+                    // 検索条件がある場合の処理
+                    if (!empty($search_keyword)) {
+                        $sql .= " AND `task` LIKE :search_keyword";
+                        $params[':search_keyword'] = "%$search_keyword%";
+                    }
+
+                    if (!empty($search_date)) {
+                        $sql .= " AND `due_date` = :search_date";
+                        $params[':search_date'] = $search_date;
+                    }
+
+                    if (!empty($search_priority)) {
+                        $sql .= " AND `priority` = :search_priority";
+                        $params[':search_priority'] = $search_priority;
+                    }
+
+                    // ソート（期限順）
+                    $sql .= " ORDER BY `due_date` ASC";
+
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute($params);
+                    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    if (!empty($results)) {
+                        foreach ($results as $row) {
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($row['status']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['task']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['due_date']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['priority']) . "</td>";
-                            echo "<td>aaa</td>";
+                            
+                            // 優先度の表示を改善
+                            $priority_text = '';
+                            switch($row['priority']) {
+                                case 1: $priority_text = '低'; break;
+                                case 2: $priority_text = '中'; break;
+                                case 3: $priority_text = '高'; break;
+                                default: $priority_text = '未設定'; break;
+                            }
+                            echo "<td>" . $priority_text . "</td>";
+                            echo "<td>
+                                    <button onclick=\"editTask(" . $row['id'] . ")\">編集</button>
+                                    <button onclick=\"deleteTask(" . $row['id'] . ")\">削除</button>
+                                  </td>";
                             echo "</tr>";
                         }
+                    } else {
+                        echo "<tr><td colspan='5'>該当するタスクが見つかりません。</td></tr>";
+                    }
 
-                    } catch (PDOException $e) {
-                        echo "DBエラー: " . htmlspecialchars($e->getMessage());
-                    }
-                }else{
-                    // 接続とクエリ実行
-                    $pdo = new PDO($dsn, $user, $pass);
-                    foreach ($pdo->query('SELECT * FROM `todos` WHERE `user_id` = 1') as $row) {
-                        echo "<tr>";
-                        echo "<td>". $row['status'] . "</td>";
-                        echo "<td>". $row['task'] . "</td>";
-                        echo "<td>". $row['due_date'] . "</td>";
-                        echo "<td>". $row['priority'] . "</td>";
-                        echo "<td>aaa</td>";
-                        echo "</tr>";
-                    }
+                } catch (PDOException $e) {
+                    echo "<tr><td colspan='5'>DBエラー: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
                 }
-
-
             ?>
-
         </table>
     </div>
+
+    <script>
+        function editTask(id) {
+            // 編集機能の実装
+            alert('編集機能（ID: ' + id + '）');
+        }
+
+        function deleteTask(id) {
+            if (confirm('このタスクを削除しますか？')) {
+                // 削除機能の実装
+                alert('削除機能（ID: ' + id + '）');
+            }
+        }
+    </script>
 </body>
 </html>
