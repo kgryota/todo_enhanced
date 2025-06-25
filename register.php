@@ -28,7 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':password', $hashedPassword);
             $stmt->execute();
 
-            $success = '登録が完了しました！';
+            $_SESSION['id']=$_POST['username']; 
+            header("Location:./index.php");
 
         } catch (PDOException $e) {
             $error = 'データベースエラー：' . $e->getMessage();
@@ -46,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <h1>ユーザー登録</h1>
-    <form action="/index.php" method="post">
+    <form action="register.php" method="post">
         <label for="username">ユーザー名：</label>
         <input type="text" id="username" name="username" required><br><br>
 
