@@ -209,7 +209,7 @@ th {
     <header>
         <h1>ToDo リスト</h1>
         <div class="user_menu">
-            <p><?php echo $id. 'さん'; ?>　</p>
+            <p><?php echo $username. 'さん'; ?>　</p>
             <a href="">ログアウト</a>
         </div>
     </header>
