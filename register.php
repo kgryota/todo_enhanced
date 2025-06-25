@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <h1>ユーザー登録</h1>
-    <form action="/view.php" method="post">
+    <form action="/index.php" method="post">
         <label for="username">ユーザー名：</label>
         <input type="text" id="username" name="username" required><br><br>
 
