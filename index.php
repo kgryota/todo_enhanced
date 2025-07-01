@@ -37,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':priority', $priority);
             $stmt->bindParam(':status', $status);
             
-            $id = $_SESSION['id'];  
             $status = 'todo';  // デフォルトステータス
             
             $stmt->execute();
@@ -209,8 +208,8 @@ th {
     <header>
         <h1>ToDo リスト</h1>
         <div class="user_menu">
-            <p><?php echo $username. 'さん'; ?>　</p>
-            <a href="">ログアウト</a>
+            <p><?php echo $user_name. 'さん'; ?>　</p>
+            <a href="logout.php">ログアウト</a>
         </div>
     </header>
     <div class="progress_bar">
