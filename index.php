@@ -29,13 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 簡単なバリデーション
         if ($content && $date && $priority) {
             // todosテーブルの構造に合わせて修正
-            $sql = "INSERT INTO todos (id, task, due_date, priority, status) VALUES (:id, :task, :due_date, :priority, :status)";
+            $sql = "INSERT INTO todos (user_id, task, status, due_date, priority) VALUES (:user_id, :task, :status, :due_date, :priority)";
             $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':user_id', $id);
             $stmt->bindParam(':task', $content);
+            $stmt->bindParam(':status', $status);
             $stmt->bindParam(':due_date', $date);
             $stmt->bindParam(':priority', $priority);
-            $stmt->bindParam(':status', $status);
+            
             
             $status = 'todo';  // デフォルトステータス
             
@@ -204,6 +205,10 @@ th {
     background-color: #f2f2f2;
     font-weight: bold;
 }
+
+#file{
+    width: 100%;
+}
 </style>
     <header>
         <h1>ToDo リスト</h1>
@@ -214,6 +219,7 @@ th {
     </header>
     <div class="progress_bar">
         <p>進捗：50%</p>
+        <progress id="file" max="100" value="50"></progress>
     </div>
     <div class="add_task">
         <h1>タスクの追加</h1>
@@ -282,7 +288,7 @@ th {
 
                     // SQL文の組み立て
                     $sql = "SELECT * FROM `todos` WHERE `user_id` = :user_id";
-                    $params = [':user_id' => 1];
+                    $params = [':user_id' => $id];
 
                     // 検索条件がある場合の処理
                     if (!empty($search_keyword)) {
@@ -341,15 +347,19 @@ th {
     </div>
 
     <script>
+        // index.php のscriptタグ内のJavaScript部分を以下に置き換えてください
+
         function editTask(id) {
-            // 編集機能の実装
-            alert('編集機能（ID: ' + id + '）');
+            // 編集ページにリダイレクト
+            window.location.href = 'edit.php?id=' + id;
         }
 
         function deleteTask(id) {
             if (confirm('このタスクを削除しますか？')) {
-                // 削除機能の実装
-                alert('削除機能（ID: ' + id + '）');
+                // 削除ページにリダイレクト（削除機能を実装する場合）
+                window.location.href = 'delete.php?id=' + id;
+                // または直接削除処理を行う場合：
+                // window.location.href = 'index.php?action=delete&id=' + id;
             }
         }
     </script>
