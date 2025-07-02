@@ -27,7 +27,7 @@ if ($username === '' || $password === '') {
 }
 
 // DBから該当ユーザーを取得
-$stmt = $pdo->prepare("SELECT * FROM user WHERE id = ?");
+$stmt = $pdo->prepare("SELECT * FROM username WHERE password = ?");
 $stmt->execute([$username]);
 $user = $stmt->fetch();
 
