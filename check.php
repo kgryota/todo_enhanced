@@ -24,12 +24,15 @@ $stmt->execute([$username]);
 $user = $stmt->fetch();
 
 if ($user && password_verify($password, $user['password'])) {
-    $_SESSION['user_name'] = $user['username'];
+    $_SESSION['id'] = $user['id'];           // 追加
+    $_SESSION['username'] = $user['username']; // 変更
     $_SESSION['admin_login'] = true;
     header("Location:./index.php");
     exit;
-} else {
+}else {
     header("Location:./login.php");
     exit;
 }
+
+
 ?>
