@@ -7,17 +7,6 @@ $pdo = new PDO(
     'teamproject'
 );
 
-        if ($stmt->rowCount()>0) {
-            //ログイン許可
-            //ユーザーネームを取得
-            $_SESSION['user_name']=$_POST['username'];
-            header("Location:./index.php");
-        } else {
-            //間違っているのでログイン不可
-            header("Location:./login.php");
-            exit;
-        }
-?>
 $username = $_POST['username'] ?? '';
 $password = $_POST['password'] ?? '';
 
@@ -26,14 +15,14 @@ if ($username === '' || $password === '') {
     exit;
 }
 
-// DBから該当ユーザーを取得
-$stmt = $pdo->prepare("SELECT * FROM user WHERE id = ?");
+// DBから該当ユーザーを取得（username を条件に）
+$stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
 $stmt->execute([$username]);
 $user = $stmt->fetch();
 
-// パスワードの照合（ハッシュ化前提）
 if ($user && password_verify($password, $user['password'])) {
-    $_SESSION['id'] = $username;
+    $_SESSION['id'] = $user['id'];
+    $_SESSION['user_name'] = $user['username'];
     $_SESSION['admin_login'] = true;
     header("Location: index.php");
     exit;
@@ -41,3 +30,4 @@ if ($user && password_verify($password, $user['password'])) {
     header("Location: login.php?error=invalid");
     exit;
 }
+?>
