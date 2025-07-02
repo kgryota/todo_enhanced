@@ -84,6 +84,7 @@ try {
 } catch (PDOException $e) {
     $message = "データベース接続エラー: " . htmlspecialchars($e->getMessage());
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="ja">

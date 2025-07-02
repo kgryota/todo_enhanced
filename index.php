@@ -345,6 +345,50 @@ th {
             ?>
         </table>
     </div>
+    <?php
+        // データベース接続情報
+        $host = 'mysql321.phy.lolipop.lan';
+        $dbname = 'LAA1554899-todoapp';
+        $user = 'LAA1554899';
+        $pass = 'teamproject';
+        $charset = 'utf8mb4';
+
+        // DSN（接続文字列）
+        $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
+
+        try {
+            // PDO接続
+            $pdo = new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+
+            // $idが定義されていることを確認
+            if (!isset($id)) {
+                throw new Exception('$id変数が定義されていません');
+            }
+
+            // 方法1: データを取得して件数も確認
+            $sql = "SELECT * FROM `todos` WHERE `user_id` = :user_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':user_id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $todos = $stmt->fetchAll();
+            $count = count($todos); // 取得したデータの件数
+            
+            echo "取得件数: " . $count . "件\n";
+            
+
+        } catch (PDOException $e) {
+            // データベース接続エラー
+            echo "データベースエラー: " . $e->getMessage();
+        } catch (Exception $e) {
+            // その他のエラー
+            echo "エラー: " . $e->getMessage();
+        }
+    ?>
 
     <script>
         // index.php のscriptタグ内のJavaScript部分を以下に置き換えてください
