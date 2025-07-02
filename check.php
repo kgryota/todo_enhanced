@@ -24,7 +24,7 @@ $stmt->execute([$username]);
 $user = $stmt->fetch();
 
 if ($user && password_verify($password, $user['password'])) {
-    $_SESSION['username'] = $user['username'];
+    $_SESSION['user_name'] = $user['username'];
     $_SESSION['admin_login'] = true;
     header("Location:./index.php");
     exit;
