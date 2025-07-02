@@ -1,33 +1,30 @@
 <?php
-session_start();
+if(isset($_POST['username'])){
+     $user_name = $_POST['username'];
+   }
+
+   if(isset($_POST['password'])){
+     $user_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+   }
+
+
+ try {
+      // データベースに接続
 
 $pdo = new PDO(
     'mysql:host=mysql321.phy.lolipop.lan;dbname=LAA1554899-todoapp;charset=utf8',
     'LAA1554899',
     'teamproject'
 );
+}catch(PDOException $e){
+          echo '接続できませんでした。理由：'.$e->getMessage();
+      }
 
-$username = $_POST['username'] ?? '';
-$password = $_POST['password'] ?? '';
+      if($user === false || password_verify($password, $user['password']) === false){
+          echo 'ログインできませんでした';
+        }
+        else{
+          echo 'ログイン成功';
+        }
 
-if ($username === '' || $password === '') {
-    header("Location: login.php?error=empty");
-    exit;
-}
-
-// DBから該当ユーザーを取得（username を条件に）
-$stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-$stmt->execute([$username]);
-$user = $stmt->fetch();
-
-if ($user && password_verify($password, $user['password'])) {
-    $_SESSION['id'] = $user['id'];
-    $_SESSION['user_name'] = $user['username'];
-    $_SESSION['admin_login'] = true;
-    header("Location: index.php");
-    exit;
-} else {
-    header("Location: login.php?error=invalid");
-    exit;
-}
 ?>
